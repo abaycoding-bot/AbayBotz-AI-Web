@@ -4,124 +4,125 @@ import time
 
 # --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(
-    page_title="AbayBotz AI | Neural Interface",
-    page_icon="⚡",
+    page_title="AbayBotz AI | The Most Powerful Assistant",
+    page_icon="👑",
     layout="centered"
 )
 
-# --- 2. CSS SUPREME (VISUAL NEON & GLASS) ---
+# --- 2. THEME SUPREME (UI/UX KELAS DUNIA) ---
 st.markdown("""
     <style>
-    /* Background Animasi Gelap */
+    /* Background Animasi Berjalan */
     .stApp {
-        background: radial-gradient(circle at center, #06090f 0%, #000000 100%);
+        background: linear-gradient(-45deg, #050505, #0a192f, #1a0b2e, #000000);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+    }
+    @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
 
-    /* Judul Neon Berpijar */
-    .neon-text {
-        font-family: 'Orbitron', sans-serif;
-        color: #fff;
-        text-align: center;
-        font-size: 3.5rem;
+    /* Judul Dengan Efek Hologram */
+    .title-text {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 4rem;
         font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 5px;
-        text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff, 0 0 40px #bc13fe;
+        background: linear-gradient(90deg, #00f2ff, #006aff, #7000ff, #00f2ff);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shine 3s linear infinite;
+        text-align: center;
         margin-bottom: 0px;
     }
-
-    /* Sub-header */
-    .sub-text {
-        text-align: center;
-        color: #00d4ff;
-        font-family: 'Inter', sans-serif;
-        letter-spacing: 2px;
-        font-size: 0.9rem;
-        margin-bottom: 30px;
-        text-transform: uppercase;
+    @keyframes shine {
+        to { background-position: 200% center; }
     }
 
-    /* Bubble Chat Glassmorphism Luxury */
+    /* Container Chat Mewah */
     [data-testid="stChatMessage"] {
         background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(0, 212, 255, 0.2);
-        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
         border-radius: 25px;
-        padding: 15px;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        padding: 20px;
+        margin-top: 15px;
     }
 
-    /* Styling Input Box */
+    /* Efek Glow pada Input */
     .stChatInputContainer {
-        border-radius: 30px;
-        border: 1px solid #00d4ff;
-        background: rgba(0,0,0,0.5);
+        border: 2px solid rgba(0, 242, 255, 0.3) !important;
+        border-radius: 50px !important;
+        background: rgba(0,0,0,0.8) !important;
+        box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
     }
 
-    /* Sidebar Styling */
+    /* Sidebar Glassmorphism */
     section[data-testid="stSidebar"] {
-        background-color: #050505;
-        border-right: 1px solid #bc13fe;
-    }
-
-    /* Animasi Progress Bar */
-    .stProgress > div > div > div > div {
-        background-image: linear-gradient(to right, #00d4ff, #bc13fe);
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(10px);
+        border-right: 1px solid rgba(0, 242, 255, 0.2);
     }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. SIDEBAR NAVIGATION ---
+# --- 3. SIDEBAR (SYSTEM CORE) ---
 with st.sidebar:
-    st.markdown("<h1 style='color: #00d4ff; text-align: center;'>JARVIS CORE</h1>", unsafe_allow_html=True)
-    st.image("https://i.pinimg.com/originals/3d/8e/9c/3d8e9c3c138f3f88f8d689b140134764.gif") # Efek lingkaran AI bergerak
+    st.markdown("<h2 style='text-align: center; color: #00f2ff;'>CORE INTERFACE</h2>", unsafe_allow_html=True)
+    st.image("https://i.pinimg.com/originals/c6/3d/8c/c63d8c3667c427042a353664d60317e0.gif") # AI Pulse Effect
     st.markdown("---")
-    st.write("💎 **User Level:** Master")
-    st.write("🧠 **AI Model:** Supreme GPT-4o")
-    st.write("🌐 **Status:** Online 24/7")
+    st.markdown("💎 **Rank:** Master")
+    st.markdown("🚀 **Engine:** GPT-4o Supreme")
+    st.markdown("🔋 **Efficiency:** 99.9%")
     st.markdown("---")
-    if st.button("🚀 CLEAR SYSTEM MEMORY"):
+    if st.button("🔴 EMERGENCY RESET"):
         st.session_state.messages = []
         st.rerun()
 
-# --- 4. HEADER ---
-st.markdown("<h1 class='neon-text'>ABAYBOTZ</h1>", unsafe_allow_html=True)
-st.markdown("<p class='sub-text'>Developed by Master Abay • Advanced Neural Network</p>", unsafe_allow_html=True)
+# --- 4. HEADER UTAMA ---
+st.markdown("<h1 class='title-text'>ABAYBOTZ AI</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #00f2ff; letter-spacing: 3px; font-weight: 300;'>THE ULTIMATE NEURAL ASSISTANT</p>", unsafe_allow_html=True)
 
-# Memori Chat
+# Memori Sesi
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Tampilkan Chat
+# Menampilkan Riwayat Percakapan
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# --- 5. REAL-TIME ENGINE ---
-if prompt := st.chat_input("Berikan perintah, Master..."):
+# --- 5. REAL-TIME PROCESSING ---
+if prompt := st.chat_input("Instruksi Anda adalah perintah bagi saya, Master..."):
+    # Tampilkan pesan Master
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
+    # Respon AI dengan Efek Real-Time
     with st.chat_message("assistant"):
         placeholder = st.empty()
         full_res = ""
         
-        try:
-            # Panggilan API
-            res = requests.get(f"https://api.vreden.web.id/api/gpt4?query={prompt}", timeout=25)
-            data = res.json().get('result', "⚠️ Kegagalan Transmisi.")
-            
-            # Efek Mengetik Super Mulus
-            for char in data:
-                full_res += char
-                placeholder.markdown(full_res + "█")
-                time.sleep(0.005) # Lebih cepat dan responsif
-            placeholder.markdown(full_res)
-            
-            st.session_state.messages.append({"role": "assistant", "content": full_res})
-        except:
-            st.error("Gagal terhubung ke pusat data. Pastikan koneksi stabil.")
+        with st.spinner("Mengkalkulasi respons terbaik..."):
+            try:
+                # Menghubungkan ke API Saraf Pusat
+                res = requests.get(f"https://api.vreden.web.id/api/gpt4?query={prompt}", timeout=25)
+                answer = res.json().get('result', "Sistem sedang padat, Master.")
+                
+                # Animasi Pengetikan Halus
+                for word in answer.split():
+                    full_res += word + " "
+                    time.sleep(0.04)
+                    placeholder.markdown(full_res + "⚡")
+                placeholder.markdown(full_res)
+                
+                st.session_state.messages.append({"role": "assistant", "content": full_res})
+            except Exception as e:
+                st.error("Transmisi data terputus. Mohon periksa koneksi satelit Master.")
 
 # --- FOOTER ---
-st.markdown("<br><p style='text-align: center; color: #555;'>Powering the future with AbayBotz AI Supreme</p>", unsafe_allow_html=True)
+st.markdown("<br><hr><p style='text-align: center; opacity: 0.5;'>AbayBotz AI Supreme v30.0 • Secured by Master Abay</p>", unsafe_allow_html=True)
