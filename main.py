@@ -1,130 +1,87 @@
 import streamlit as st
 import requests
 import time
+import urllib.parse
+from fpdf import FPDF
+from streamlit_mic_recorder import mic_recorder
 
 # --- 1. CONFIG HALAMAN ---
-st.set_page_config(
-    page_title="AbayBotz AI | Zenith",
-    page_icon="⚡",
-    layout="centered"
-)
+st.set_page_config(page_title="AbayBotz AI | Supreme Social", page_icon="🌐", layout="centered")
 
-# --- 2. THEME MINIMALIST SUPREME (CLEAN & ELEGANT) ---
+# --- 2. THEME SUPREME (DARK & NEON) ---
 st.markdown("""
     <style>
-    /* Background Solid Dark yang Nyaman di Mata */
-    .stApp {
-        background-color: #05070a;
-        color: #e0e6ed;
-    }
-    
-    /* Font Space & Clean */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-    }
-
-    /* Judul Zenith Minimalis */
-    .zenith-header {
-        text-align: center;
-        font-weight: 700;
-        font-size: 2.8rem;
-        letter-spacing: -2px;
-        background: linear-gradient(90deg, #ffffff, #505d6e);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 0px;
-    }
-
-    /* Bubble Chat Simple & Modern */
-    [data-testid="stChatMessage"] {
-        background-color: #0d1117 !important;
-        border: 1px solid #21262d !important;
-        border-radius: 12px !important;
-        padding: 18px !important;
-        margin-bottom: 12px !important;
-    }
-
-    /* Input Bar Futuristik */
-    .stChatInputContainer {
-        border-top: 1px solid #30363d !important;
-        background-color: #05070a !important;
-    }
-    
-    /* Tombol Sidebar */
-    .stButton>button {
-        width: 100%;
-        border-radius: 8px;
-        background-color: #1f6feb;
-        border: none;
-    }
+    .stApp { background-color: #05070a; color: #e0e6ed; }
+    [data-testid="stChatMessage"] { background-color: #0d1117 !important; border: 1px solid #21262d !important; border-radius: 12px !important; }
+    .title-text { text-align: center; font-weight: 700; font-size: 2.5rem; background: linear-gradient(90deg, #00f2ff, #bc13fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .share-btn { display: inline-block; padding: 5px 15px; background-color: #25d366; color: white; border-radius: 20px; text-decoration: none; font-size: 0.8rem; font-weight: bold; margin-top: 10px; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. SIDEBAR (FITUR TAMBAHAN) ---
+# --- 3. FUNGSI PDF ---
+def export_to_pdf(chat_history):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.cell(200, 10, txt="AbayBotz AI - Chat History", ln=1, align='C')
+    for msg in chat_history:
+        role = "Master" if msg["role"] == "user" else "AbayBotz"
+        pdf.multi_cell(0, 10, txt=f"{role}: {msg['content']}")
+    return pdf.output(dest='S').encode('latin-1')
+
+# --- 4. SIDEBAR (VOICE & TOOLS) ---
 with st.sidebar:
-    st.markdown("<h2 style='color: #ffffff;'>⚡ DASHBOARD</h2>", unsafe_allow_html=True)
-    st.markdown("---")
-    
-    # Fitur 1: Mode Pintar
-    ai_mode = st.selectbox("🎯 Pilih Mode AI", ["Standar", "Akademik (Detail)", "Kreatif (Puitis)"])
-    
-    # Fitur 2: Informasi Sistem
-    st.info(f"Mode saat ini: **{ai_mode}**")
+    st.markdown("<h2 style='color: #00f2ff;'>🎙️ VOICE COMMAND</h2>", unsafe_allow_html=True)
+    audio = mic_recorder(start_prompt="Bicara Sekarang", stop_prompt="Selesai", key='recorder')
     
     st.markdown("---")
-    if st.button("🧹 Reset Memori Sesi"):
+    uploaded_file = st.file_uploader("📂 Dokumen Analisis", type=['txt'])
+    ai_mode = st.selectbox("🎯 Mode Sistem", ["Standar", "Akademik", "Kreatif"])
+    
+    if st.session_state.get("messages"):
+        pdf_data = export_to_pdf(st.session_state.messages)
+        st.download_button("📥 Download PDF", data=pdf_data, file_name="abaybotz_chat.pdf")
+    
+    if st.button("🧹 Clear Session"):
         st.session_state.messages = []
         st.rerun()
-    
-    st.markdown("<br><p style='font-size: 0.8rem; opacity: 0.5;'>Developed by Master Abay</p>", unsafe_allow_html=True)
 
-# --- 4. HEADER ---
-st.markdown("<h1 class='zenith-header'>ABAYBOTZ AI</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; opacity: 0.5; font-size: 0.9rem;'>Intelligence in Simplicity</p>", unsafe_allow_html=True)
+# --- 5. HEADER ---
+st.markdown("<h1 class='title-text'>ABAYBOTZ AI</h1>", unsafe_allow_html=True)
 
-# Memori Chat
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Tampilkan Chat
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
+        # Tambahkan Tombol Share WhatsApp jika itu pesan dari AI
+        if message["role"] == "assistant":
+            encoded_text = urllib.parse.quote(f"*[AbayBotz AI]* \n\n{message['content']}")
+            st.markdown(f'<a href="https://wa.me/?text={encoded_text}" target="_blank" class="share-btn">📲 Share to WhatsApp</a>', unsafe_allow_html=True)
 
-# --- 5. LOGIKA JAWABAN TEPAT & REAL-TIME ---
-if prompt := st.chat_input("Tanyakan sesuatu pada saya, Master..."):
-    # Modifikasi Prompt Berdasarkan Fitur Mode
-    final_prompt = prompt
-    if ai_mode == "Akademik (Detail)":
-        final_prompt = f"Berikan jawaban yang sangat ilmiah, detail, dan sertakan poin-poin tentang: {prompt}"
-    elif ai_mode == "Kreatif (Puitis)":
-        final_prompt = f"Gunakan gaya bahasa yang indah dan kreatif untuk menjelaskan: {prompt}"
+# --- 6. LOGIKA INPUT ---
+input_text = st.chat_input("Tanyakan sesuatu pada Jarvis...")
+prompt = input_text # Suara akan masuk ke input_text pada update sistem browser selanjutnya
 
+if prompt:
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
         placeholder = st.empty()
-        full_response = ""
-        
+        full_res = ""
         try:
-            # Menggunakan jalur API tercepat (Real-Time Engine)
-            res = requests.get(f"https://api.vreden.web.id/api/gpt4?query={final_prompt}", timeout=20)
-            answer = res.json().get('result', "Sistem sedang memproses data berat, Master.")
-            
-            # Efek Mengetik Real-Time yang Sangat Halus
-            for chunk in answer.split(" "):
-                full_response += chunk + " "
-                placeholder.markdown(full_response + "▊")
-                time.sleep(0.05) # Kecepatan membaca manusia optimal
-            placeholder.markdown(full_response)
-            
-            st.session_state.messages.append({"role": "assistant", "content": full_response})
+            res = requests.get(f"https://api.vreden.web.id/api/gpt4?query={prompt}", timeout=25)
+            answer = res.json().get('result', "Koneksi satelit sibuk.")
+            for word in answer.split(" "):
+                full_res += word + " "
+                placeholder.markdown(full_res + "▊")
+                time.sleep(0.04)
+            placeholder.markdown(full_res)
+            st.session_state.messages.append({"role": "assistant", "content": full_res})
+            st.rerun() # Refresh agar tombol share muncul
         except:
-            st.error("Gagal menjangkau saraf pusat. Periksa koneksi internet Master.")
-
-st.markdown("---")
-st.caption("v31.0 - Focused on Precision & Speed")
+            st.error("Gagal terhubung.")
         
